@@ -1,7 +1,7 @@
 # Simple-P4runtime-Controller
 
 ## Mininet with simple_switch_grpc
-The scripts start a very simple Mininet topo with just 1 switch. Adiditonaly, it compules the supplied P4 file to generate both the json as well as P4Info file (used by the contorller)
+The scripts start a very simple Mininet topo with just one switch. Additionally, it compiles the supplied P4 file to generate both the JSON as well as P4Info file (used by the controller)
 ```bash 
 usage: run_mininet.py [-h] [--num-hosts NUM_HOSTS] [--p4-file P4_FILE]
 
@@ -28,10 +28,10 @@ optional arguments:
                         BMv2 JSON file from p4c
 
 ```
-At the start of the connection the controller installs a 3 rules, forwarding the packets to the CPU port. Furthermore, it listens to PacketIn messages and outputs them to the port 3. 
+At the start of the connection, the controller installs three rules, forwarding the packets to the CPU port. Furthermore, it listens to PacketIn messages and outputs them to port 3. 
 
-##Packet-In messages
-To the beginning of each packet in message a special header, containing te ingress port is appended. These values transalates to the metadata values at the controller.
+### Packet-In messages
+At the beginning of each packet_in message, a special header containing the ingress port is appended—these values translate to the controller's metadata values.
 
 ```bash 
  @controller_header("packet_in")
@@ -40,8 +40,8 @@ To the beginning of each packet in message a special header, containing te ingre
  }
  ```
 
-##Packet-Out messages
-To the beginning of each packet Out message a special header, containing te egress port is appended. These value is set at the controller (as metadata in the buildPacketOut function)
+### Packet-Out messages
+At the beginning of each packet Out message, a special header containing the egress port is appended. This value is set at the controller (as metadata in the buildPacketOut function)
 
 ```bash 
  @controller_header("packet_in")
