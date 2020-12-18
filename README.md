@@ -29,8 +29,11 @@ optional arguments:
 
 ```
 At the start of the connection the controller installs a 3 rules, forwarding the packets to the CPU port. Furthermore, it listens to PacketIn messages and outputs them to the port 3. 
-```bash 
+
 ##Packet-In messages
+To the beginning of each packet in message a special header, containing te ingress port is appended. These values transalates to the metadata values at the controller.
+
+```bash 
  @controller_header("packet_in")
  header packet_in_t {
     bit<16> ingress_port;
@@ -38,13 +41,14 @@ At the start of the connection the controller installs a 3 rules, forwarding the
  ```
 
 ##Packet-Out messages
+To the beginning of each packet Out message a special header, containing te egress port is appended. These value is set at the controller (as metadata in the buildPacketOut function)
+
 ```bash 
  @controller_header("packet_in")
  header packet_in_t {
      bit<16> ingress_port;
  }
  ```
-Transalates to the metadata values seen at the output of the controller.
 ## Run a test scenario
 
 ###Start Mininet (with simple_switch_grpc)
