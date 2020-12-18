@@ -1,7 +1,7 @@
 # Simple-P4runtime-Controller
 
 ## Mininet with simple_switch_grpc
-The scripts start a very simple Mininet topo with just one switch. Additionally, it compiles the supplied P4 file to generate both the JSON as well as P4Info file (used by the controller)
+The scripts starts a very simple Mininet topo with just one switch. Additionally, it compiles the supplied P4 file to generate both the JSON as well as P4Info file (used by the controller)
 ```bash 
 usage: run_mininet.py [-h] [--num-hosts NUM_HOSTS] [--p4-file P4_FILE]
 
