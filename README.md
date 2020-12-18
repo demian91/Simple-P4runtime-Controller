@@ -51,15 +51,15 @@ At the beginning of each packet Out message, a special header containing the egr
  ```
 ## Run a test scenario
 
-###Start Mininet (with simple_switch_grpc)
+### Start Mininet (with simple_switch_grpc)
 ```bash 
 python run_mininet.py --p4-file simple.p4
 ```
-###Start the controller in a different terminal
+### Start the controller in a different terminal
 ```bash 
 python controller.py
 ```
-###Generate traffic (in Mininet)
+### Generate traffic (in Mininet)
 ```bash 
 h1 python UDPsend.py
 ```
