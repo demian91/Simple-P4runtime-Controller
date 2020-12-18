@@ -1,3 +1,8 @@
+# Copyright 2019 Belma Turkovic
+# TU Delft Embedded and Networked Systems Group.
+# NOTICE: THIS FILE IS BASED ON https://github.com/p4lang/behavioral-model/blob/master/mininet/p4_mininet.py, BUT WAS MODIFIED UNDER COMPLIANCE 
+# WITH THE APACHE 2.0 LICENCE FROM THE ORIGINAL WORK. 
+
 # Copyright 2013-present Barefoot Networks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,9 +66,6 @@ class P4Switch(Switch):
         self.sw_path = sw_path
         self.json_path = json_path
         self.verbose = verbose
-        #logfile = 'p4s.%s.log' % self.name
-        #self.output = open(logfile, 'w')
-        #self.thrift_port = thrift_port
         self.pcap_dump = pcap_dump
         self.enable_debugger = enable_debugger
         self.cpu_port = cpu_port
@@ -83,24 +85,11 @@ class P4Switch(Switch):
         "Start up a new P4 switch"
         print "Starting P4 switch", self.name
         args = [self.sw_path]
-        # args.extend( ['--name', self.name] )
-        # args.extend( ['--dpid', self.dpid] )
         for port, intf in self.intfs.items():
             if not intf.IP():
                 args.extend( ['-i', str(port) + "@" + intf.name] )
-        #if self.cpu_port:
-        #    args.extend( ['-i', "64@" + self.cpu_port] )
         if self.pcap_dump:
             args.append("--pcap")
-        #args.append("--log-console")
-        #args.append("--log-file s%s.log" % self.name)
-        #args.append("--log-level debug")
-        #args.append("--log-flush")
-            # args.append("--useFiles")
-        #if self.thrift_port:
-        #    args.extend( ['--thrift-port', str(self.thrift_port)] )
-        #if self.nanomsg:
-        #    args.extend( ['--nanolog', self.nanomsg] )
         args.extend( ['--device-id', str(self.device_id)] )
         P4Switch.device_id += 1
 	notificationAddr = 'ipc:///tmp/bmv2-'+str(self.device_id)+'-notifications.ipc'
@@ -116,7 +105,6 @@ class P4Switch(Switch):
         print ' '.join(args)
 
         self.cmd( ' '.join(args) + ' >' + logfile + ' 2>&1 &' )
-        # self.cmd( ' '.join(args) + ' > /dev/null 2>&1 &' )
 
         print "switch has been started"
 
@@ -157,13 +145,11 @@ class P4GrpcSwitch(Switch):
         self.verbose = verbose
         self.thrift_port = thrift_port
         self.grpc_port = grpc_port
-        #self.pcap_dump = pcap_dump
         self.enable_debugger = enable_debugger
         self.cpu_port = cpu_port
         if device_id is not None:
             self.device_id = device_id
             P4Switch.device_id = max(P4Switch.device_id, device_id)
-	    #self.thrift_port = 9090 + device_id
         else:
             self.device_id = P4Switch.device_id
             P4Switch.device_id += 1
@@ -179,8 +165,6 @@ class P4GrpcSwitch(Switch):
         for port, intf in self.intfs.items():
             if not intf.IP():
                 args.extend( ['-i', str(port) + "@" + intf.name] )
-        #if self.cpu_port:
-        #    args.extend( ['-i', "64@" + self.cpu_port] )
         if self.thrift_port:
             args.extend( ['--thrift-port', str(self.thrift_port)] )
         
@@ -196,13 +180,11 @@ class P4GrpcSwitch(Switch):
         print ' '.join(args)
 
         self.cmd( ' '.join(args) + ' > %s.log 2>&1 &' % self.name)
-        #self.cmd( ' '.join(args) + ' > /dev/null 2>&1 &' )
 
         print "switch has been started"
 
     def stop( self ):
         "Terminate IVS switch."
-        #self.output.flush()
         self.cmd( 'kill %' + self.sw_path )
         self.cmd( 'wait' )
         self.deleteIntfs()

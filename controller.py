@@ -1,4 +1,8 @@
 #!/usr/bin/env python2
+# Copyright 2019 Belma Turkovic
+# TU Delft Embedded and Networked Systems Group.
+# NOTICE: THIS FILE IS BASED ON https://github.com/p4lang/tutorials/tree/master/exercises/p4runtime, BUT WAS MODIFIED UNDER COMPLIANCE 
+# WITH THE APACHE 2.0 LICENCE FROM THE ORIGINAL WORK. 
 import argparse
 import grpc
 import os
