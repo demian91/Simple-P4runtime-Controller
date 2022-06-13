@@ -146,10 +146,10 @@ if __name__ == "__main__":
 
     if not os.path.exists(args.p4info):
         parser.print_help()
-        print("\np4info file not found!" % args.p4info)
+        print("\np4info file %s not found!" % args.p4info)
         parser.exit(1)
     if not os.path.exists(args.bmv2_json):
         parser.print_help()
-        print("\nBMv2 JSON file not found!" % args.bmv2_json)
+        print("\nBMv2 JSON file %s not found!" % args.bmv2_json)
         parser.exit(2)
     main(args.p4info, args.bmv2_json)
