@@ -1,7 +1,7 @@
 # Copyright 2019 Belma Turkovic
 # TU Delft Embedded and Networked Systems Group.
-# NOTICE: THIS FILE IS BASED ON https://github.com/p4lang/behavioral-model/blob/master/mininet/p4_mininet.py, BUT WAS MODIFIED UNDER COMPLIANCE 
-# WITH THE APACHE 2.0 LICENCE FROM THE ORIGINAL WORK. 
+# NOTICE: THIS FILE IS BASED ON https://github.com/p4lang/behavioral-model/blob/master/mininet/p4_mininet.py, BUT WAS MODIFIED UNDER COMPLIANCE
+# WITH THE APACHE 2.0 LICENCE FROM THE ORIGINAL WORK.
 
 # Copyright 2013-present Barefoot Networks, Inc.
 #
@@ -22,6 +22,7 @@ from mininet.net import Mininet
 from mininet.node import Switch, Host
 from mininet.log import setLogLevel, info
 
+
 class P4Host(Host):
     def config(self, **params):
         r = super(Host, self).config(**params)
@@ -40,29 +41,40 @@ class P4Host(Host):
         return r
 
     def describe(self):
-        print "**********"
-        print self.name
-        print "default interface: %s\t%s\t%s" %(
-            self.defaultIntf().name,
-            self.defaultIntf().IP(),
-            self.defaultIntf().MAC()
+        print("**********")
+        print(self.name)
+        print(
+            "default interface: %s\t%s\t%s"
+            % (
+                self.defaultIntf().name,
+                self.defaultIntf().IP(),
+                self.defaultIntf().MAC(),
+            )
         )
-        print "**********"
-        
+        print("**********")
+
+
 class P4Switch(Switch):
     """P4 virtual switch"""
+
     device_id = 0
 
-    def __init__( self, name, sw_path = None, json_path = None, grpc_port = None,
-                  thrift_port = None,
-                  pcap_dump = False,
-                  verbose = False,
-                  device_id = None,
-                  enable_debugger = False,
-                  cpu_port = None,
-                  **kwargs ):
-        Switch.__init__( self, name, **kwargs )
-        assert(sw_path)
+    def __init__(
+        self,
+        name,
+        sw_path=None,
+        json_path=None,
+        grpc_port=None,
+        thrift_port=None,
+        pcap_dump=False,
+        verbose=False,
+        device_id=None,
+        enable_debugger=False,
+        cpu_port=None,
+        **kwargs
+    ):
+        Switch.__init__(self, name, **kwargs)
+        assert sw_path
         self.sw_path = sw_path
         self.json_path = json_path
         self.verbose = verbose
@@ -78,22 +90,24 @@ class P4Switch(Switch):
         self.nanomsg = "ipc:///tmp/bm-%d-log.ipc" % self.device_id
 
     @classmethod
-    def setup( cls ):
+    def setup(cls):
         pass
 
-    def start( self, controllers ):
+    def start(self, controllers):
         "Start up a new P4 switch"
-        print "Starting P4 switch", self.name
+        print("Starting P4 switch", self.name)
         args = [self.sw_path]
         for port, intf in self.intfs.items():
             if not intf.IP():
-                args.extend( ['-i', str(port) + "@" + intf.name] )
+                args.extend(["-i", str(port) + "@" + intf.name])
         if self.pcap_dump:
             args.append("--pcap")
-        args.extend( ['--device-id', str(self.device_id)] )
+        args.extend(["--device-id", str(self.device_id)])
         P4Switch.device_id += 1
-	notificationAddr = 'ipc:///tmp/bmv2-'+str(self.device_id)+'-notifications.ipc'
-	args.extend( ['--notifications-addr', str(notificationAddr)] )
+        notificationAddr = (
+            "ipc:///tmp/bmv2-" + str(self.device_id) + "-notifications.ipc"
+        )
+        args.extend(["--notifications-addr", str(notificationAddr)])
         if self.json_path:
             args.append(self.json_path)
         else:
@@ -101,45 +115,50 @@ class P4Switch(Switch):
         if self.enable_debugger:
             args.append("--debugger")
         args.append("-- --enable-swap")
-        logfile = 'p4s.%s.log' % self.name
-        print ' '.join(args)
+        logfile = "p4s.%s.log" % self.name
+        print(" ".join(args))
 
-        self.cmd( ' '.join(args) + ' >' + logfile + ' 2>&1 &' )
+        self.cmd(" ".join(args) + " >" + logfile + " 2>&1 &")
 
-        print "switch has been started"
+        print("switch has been started")
 
-    def stop( self ):
+    def stop(self):
         "Terminate IVS switch."
         self.output.flush()
-        self.cmd( 'kill %' + self.sw_path )
-        self.cmd( 'wait' )
+        self.cmd("kill %" + self.sw_path)
+        self.cmd("wait")
         self.deleteIntfs()
 
-    def attach( self, intf ):
+    def attach(self, intf):
         "Connect a data port"
-        assert(0)
+        assert 0
 
-    def detach( self, intf ):
+    def detach(self, intf):
         "Disconnect a data port"
-        assert(0)
+        assert 0
 
 
 class P4GrpcSwitch(Switch):
     """P4 virtual switch"""
+
     device_id = 0
 
-
-    def __init__( self, name, sw_path = None, json_path = None,
-                  thrift_port = None,
-		  grpc_port = None,
-                  pcap_dump = False,
-                  verbose = False,
-                  device_id = None,
-                  enable_debugger = False,
-                  cpu_port = None,
-                  **kwargs ):
-        Switch.__init__( self, name, **kwargs )
-        assert(sw_path)
+    def __init__(
+        self,
+        name,
+        sw_path=None,
+        json_path=None,
+        thrift_port=None,
+        grpc_port=None,
+        pcap_dump=False,
+        verbose=False,
+        device_id=None,
+        enable_debugger=False,
+        cpu_port=None,
+        **kwargs
+    ):
+        Switch.__init__(self, name, **kwargs)
+        assert sw_path
         self.sw_path = sw_path
         self.json_path = json_path
         self.verbose = verbose
@@ -155,47 +174,48 @@ class P4GrpcSwitch(Switch):
             P4Switch.device_id += 1
 
     @classmethod
-    def setup( cls ):
+    def setup(cls):
         pass
 
-    def start( self, controllers ):
+    def start(self, controllers):
         "Start up a new P4 switch"
-        print "Starting P4 switch", self.name
+        print("Starting P4 switch", self.name)
         args = [self.sw_path]
         for port, intf in self.intfs.items():
             if not intf.IP():
-                args.extend( ['-i', str(port) + "@" + intf.name] )
+                args.extend(["-i", str(port) + "@" + intf.name])
         if self.thrift_port:
-            args.extend( ['--thrift-port', str(self.thrift_port)] )
-        
-        args.extend( ['--device-id', str(self.device_id)] )
+            args.extend(["--thrift-port", str(self.thrift_port)])
+
+        args.extend(["--device-id", str(self.device_id)])
         P4Switch.device_id += 1
         if self.json_path:
             args.append(self.json_path)
         else:
             args.append("--no-p4")
-	args.append("--log-flush --log-level trace --log-file %s.log" % self.name)
+
+        args.append("--log-flush --log-level trace --log-file %s.log" % self.name)
         if self.grpc_port:
-		args.append("-- --grpc-server-addr 0.0.0.0:"+str(self.grpc_port)+" --cpu-port "+self.cpu_port)
-        print ' '.join(args)
+            args.append(
+                "-- --grpc-server-addr 0.0.0.0:"
+                + str(self.grpc_port)
+                + " --cpu-port "
+                + self.cpu_port
+            )
+        print(" ".join(args))
+        self.cmd(" ".join(args) + " > %s.log 2>&1 &" % self.name)
+        print("switch has been started")
 
-        self.cmd( ' '.join(args) + ' > %s.log 2>&1 &' % self.name)
-
-        print "switch has been started"
-
-    def stop( self ):
+    def stop(self):
         "Terminate IVS switch."
-        self.cmd( 'kill %' + self.sw_path )
-        self.cmd( 'wait' )
+        self.cmd("kill %" + self.sw_path)
+        self.cmd("wait")
         self.deleteIntfs()
 
-    def attach( self, intf ):
+    def attach(self, intf):
         "Connect a data port"
-        assert(0)
+        assert 0
 
-    def detach( self, intf ):
+    def detach(self, intf):
         "Disconnect a data port"
-        assert(0)
-
-
-    
+        assert 0

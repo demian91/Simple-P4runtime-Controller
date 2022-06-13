@@ -1,6 +1,6 @@
 # Copyright 2019 Belma Turkovic
 # TU Delft Embedded and Networked Systems Group.
-# NOTICE: THIS FILE IS BASED ON https://github.com/p4lang/tutorials/tree/master/exercises/p4runtime, BUT WAS MODIFIED UNDER COMPLIANCE 
+# NOTICE: THIS FILE IS BASED ON https://github.com/p4lang/tutorials/tree/master/exercises/p4runtime, BUT WAS MODIFIED UNDER COMPLIANCE
 # WITH THE APACHE 2.0 LICENCE FROM THE ORIGINAL WORK. THE FOLLOWING IS THE COPYRIGHT OF THE ORIGINAL DOCUMENT:
 #
 # Copyright 2017-present Open Networking Foundation
@@ -25,6 +25,7 @@ from p4.config.v1 import p4info_pb2
 
 from convert import encode
 
+
 class P4InfoHelper(object):
     def __init__(self, p4_info_filepath):
         p4info = p4info_pb2.P4Info()
@@ -40,7 +41,7 @@ class P4InfoHelper(object):
         for o in getattr(self.p4info, entity_type):
             pre = o.preamble
             if name:
-                if (pre.name == name or pre.alias == name):
+                if pre.name == name or pre.alias == name:
                     return o
             else:
                 if pre.id == id:
@@ -88,7 +89,9 @@ class P4InfoHelper(object):
                     elif id is not None:
                         if mf.id == id:
                             return mf
-        raise AttributeError("%r has no attribute %r" % (table_name, name if name is not None else id))
+        raise AttributeError(
+            "%r has no attribute %r" % (table_name, name if name is not None else id)
+        )
 
     def get_match_field_id(self, table_name, match_field_name):
         return self.get_match_field(table_name, name=match_field_name).id
@@ -127,15 +130,15 @@ class P4InfoHelper(object):
 
     def get_match_field_value(self, match_field):
         match_type = match_field.WhichOneof("field_match_type")
-        if match_type == 'valid':
+        if match_type == "valid":
             return match_field.valid.value
-        elif match_type == 'exact':
+        elif match_type == "exact":
             return match_field.exact.value
-        elif match_type == 'lpm':
+        elif match_type == "lpm":
             return (match_field.lpm.value, match_field.lpm.prefix_len)
-        elif match_type == 'ternary':
+        elif match_type == "ternary":
             return (match_field.ternary.value, match_field.ternary.mask)
-        elif match_type == 'range':
+        elif match_type == "range":
             return (match_field.range.low, match_field.range.high)
         else:
             raise Exception("Unsupported match type with type %r" % match_type)
@@ -151,7 +154,10 @@ class P4InfoHelper(object):
                     elif id is not None:
                         if p.id == id:
                             return p
-        raise AttributeError("action %r has no param %r, (has: %r)" % (action_name, name if name is not None else id, a.params))
+        raise AttributeError(
+            "action %r has no param %r, (has: %r)"
+            % (action_name, name if name is not None else id, a.params)
+        )
 
     def get_action_param_id(self, action_name, param_name):
         return self.get_action_param(action_name, name=param_name).id
@@ -166,14 +172,14 @@ class P4InfoHelper(object):
         p4runtime_param.value = encode(value, p4info_param.bitwidth)
         return p4runtime_param
 
-    # get replicas 
+    # get replicas
     def get_replicas_pb(self, egress_port, instance):
         p4runtime_replicas = p4runtime_pb2.Replica()
         p4runtime_replicas.egress_port = egress_port
         p4runtime_replicas.instance = instance
         return p4runtime_replicas
 
-    # get metadata 
+    # get metadata
     def get_metadata_pb(self, metadata_id, value):
         p4runtime_metadata = p4runtime_pb2.PacketMetadata()
         p4runtime_metadata.metadata_id = metadata_id
@@ -185,10 +191,12 @@ class P4InfoHelper(object):
         mc_group_entry = p4runtime_pb2.MulticastGroupEntry()
         mc_group_entry.multicast_group_id = mc_group_id
         if replicas:
-            mc_group_entry.replicas.extend([
-                self.get_replicas_pb(egress_port, instance)
-                for egress_port, instance in replicas.iteritems()
-            ])
+            mc_group_entry.replicas.extend(
+                [
+                    self.get_replicas_pb(egress_port, instance)
+                    for egress_port, instance in replicas.iteritems()
+                ]
+            )
         return mc_group_entry
 
     # get packetout
@@ -196,19 +204,23 @@ class P4InfoHelper(object):
         packet_out = p4runtime_pb2.PacketOut()
         packet_out.payload = payload
         if metadata:
-            packet_out.metadata.extend([
-                self.get_metadata_pb(metadata_id, value)
-                for metadata_id, value in metadata.iteritems()
-            ])
+            packet_out.metadata.extend(
+                [
+                    self.get_metadata_pb(metadata_id, value)
+                    for metadata_id, value in metadata.items()
+                ]
+            )
         return packet_out
 
-    def buildTableEntry(self,
-                        table_name,
-                        match_fields=None,
-                        default_action=False,
-                        action_name=None,
-                        action_params=None,
-                        priority=None):
+    def buildTableEntry(
+        self,
+        table_name,
+        match_fields=None,
+        default_action=False,
+        action_name=None,
+        action_params=None,
+        priority=None,
+    ):
         table_entry = p4runtime_pb2.TableEntry()
         table_entry.table_id = self.get_tables_id(table_name)
 
@@ -216,10 +228,12 @@ class P4InfoHelper(object):
             table_entry.priority = priority
 
         if match_fields:
-            table_entry.match.extend([
-                self.get_match_field_pb(table_name, match_field_name, value)
-                for match_field_name, value in match_fields.iteritems()
-            ])
+            table_entry.match.extend(
+                [
+                    self.get_match_field_pb(table_name, match_field_name, value)
+                    for match_field_name, value in match_fields.items()
+                ]
+            )
 
         if default_action:
             table_entry.is_default_action = True
@@ -228,9 +242,10 @@ class P4InfoHelper(object):
             action = table_entry.action.action
             action.action_id = self.get_actions_id(action_name)
             if action_params:
-                action.params.extend([
-                    self.get_action_param_pb(action_name, field_name, value)
-                    for field_name, value in action_params.iteritems()
-                ])
+                action.params.extend(
+                    [
+                        self.get_action_param_pb(action_name, field_name, value)
+                        for field_name, value in action_params.items()
+                    ]
+                )
         return table_entry
-

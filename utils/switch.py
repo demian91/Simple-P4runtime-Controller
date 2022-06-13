@@ -1,6 +1,6 @@
 # Copyright 2019 Belma Turkovic
 # TU Delft Embedded and Networked Systems Group.
-# NOTICE: THIS FILE IS BASED ON https://github.com/p4lang/tutorials/tree/master/exercises/p4runtime, BUT WAS MODIFIED UNDER COMPLIANCE 
+# NOTICE: THIS FILE IS BASED ON https://github.com/p4lang/tutorials/tree/master/exercises/p4runtime, BUT WAS MODIFIED UNDER COMPLIANCE
 # WITH THE APACHE 2.0 LICENCE FROM THE ORIGINAL WORK. THE FOLLOWING IS THE COPYRIGHT OF THE ORIGINAL DOCUMENT:
 #
 # Copyright 2017-present Open Networking Foundation
@@ -17,7 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from Queue import Queue
+from queue import Queue
 from abc import abstractmethod
 from datetime import datetime
 import threading
@@ -26,18 +26,22 @@ from p4.v1 import p4runtime_pb2
 from p4.v1 import p4runtime_pb2_grpc
 from p4.tmp import p4config_pb2
 import time
+
 MSG_LOG_MAX_LEN = 1024
 
 # List of all active connections
 connections = []
 
+
 def ShutdownAllSwitchConnections():
     for c in connections:
         c.shutdown()
 
-class SwitchConnection(object):
 
-    def __init__(self, name=None, address='127.0.0.1:50051', device_id=0, proto_dump_file=None):
+class SwitchConnection(object):
+    def __init__(
+        self, name=None, address="127.0.0.1:50051", device_id=0, proto_dump_file=None
+    ):
         self.name = name
         self.address = address
         self.device_id = device_id
@@ -50,7 +54,9 @@ class SwitchConnection(object):
         # create requests queue
         self.requests_stream = IterableQueue()
         # get response via requests queue
-        self.stream_msg_resp = self.client_stub.StreamChannel(iter(self.requests_stream))
+        self.stream_msg_resp = self.client_stub.StreamChannel(
+            iter(self.requests_stream)
+        )
         self.proto_dump_file = proto_dump_file
         connections.append(self)
 
@@ -69,11 +75,11 @@ class SwitchConnection(object):
         request.arbitration.election_id.low = 1
 
         if dry_run:
-            print "P4Runtime MasterArbitrationUpdate: ", request
+            print("P4Runtime MasterArbitrationUpdate: ", request)
         else:
             self.requests_stream.put(request)
             for item in self.stream_msg_resp:
-                return item # just one
+                return item  # just one
 
     def SetForwardingPipelineConfig(self, p4info, dry_run=False, **kwargs):
         device_config = self.buildDeviceConfig(**kwargs)
@@ -85,9 +91,11 @@ class SwitchConnection(object):
         config.p4info.CopyFrom(p4info)
         config.p4_device_config = device_config.SerializeToString()
 
-        request.action = p4runtime_pb2.SetForwardingPipelineConfigRequest.VERIFY_AND_COMMIT
+        request.action = (
+            p4runtime_pb2.SetForwardingPipelineConfigRequest.VERIFY_AND_COMMIT
+        )
         if dry_run:
-            print "P4Runtime SetForwardingPipelineConfig:", request
+            print("P4Runtime SetForwardingPipelineConfig:", request)
         else:
             self.client_stub.SetForwardingPipelineConfig(request)
 
@@ -102,7 +110,7 @@ class SwitchConnection(object):
             update.type = p4runtime_pb2.Update.INSERT
         update.entity.table_entry.CopyFrom(table_entry)
         if dry_run:
-            print "P4Runtime Write:", request
+            print("P4Runtime Write:", request)
         else:
             self.client_stub.Write(request)
 
@@ -114,7 +122,7 @@ class SwitchConnection(object):
         update.type = p4runtime_pb2.Update.MODIFY
         update.entity.table_entry.CopyFrom(table_entry)
         if dry_run:
-            print "P4Runtime Write:", request
+            print("P4Runtime Write:", request)
         else:
             self.client_stub.Write(request)
 
@@ -126,7 +134,7 @@ class SwitchConnection(object):
         update.type = p4runtime_pb2.Update.DELETE
         update.entity.table_entry.CopyFrom(table_entry)
         if dry_run:
-            print "P4Runtime Write:", request
+            print("P4Runtime Write:", request)
         else:
             self.client_stub.Write(request)
 
@@ -140,7 +148,7 @@ class SwitchConnection(object):
         else:
             table_entry.table_id = 0
         if dry_run:
-            print "P4Runtime Read:", request
+            print("P4Runtime Read:", request)
         else:
             for response in self.client_stub.Read(request):
                 yield response
@@ -157,26 +165,26 @@ class SwitchConnection(object):
         if index is not None:
             counter_entry.index.index = index
         if dry_run:
-            print "P4Runtime Read:", request
+            print("P4Runtime Read:", request)
         else:
             for response in self.client_stub.Read(request):
                 yield response
 
     def PacketIn(self, dry_run=False, **kwargs):
-        for item in self.stream_msg_resp: 
-           if dry_run:
-               print "P4 Runtime PacketIn: ", request 
-           else:
-               return item
+        for item in self.stream_msg_resp:
+            if dry_run:
+                print("P4 Runtime PacketIn: ", request)
+            else:
+                return item
 
     def PacketOut(self, packet, dry_run=False, **kwargs):
         request = p4runtime_pb2.StreamMessageRequest()
         request.packet.CopyFrom(packet)
         if dry_run:
-            print "P4 Runtime: ", request 
+            print("P4 Runtime: ", request)
         else:
             self.requests_stream.put(request)
-            #for item in self.stream_msg_resp:
+            # for item in self.stream_msg_resp:
             return request
 
     def WritePREEntry(self, pre_entry, dry_run=False):
@@ -187,29 +195,32 @@ class SwitchConnection(object):
         update.type = p4runtime_pb2.Update.INSERT
         update.entity.packet_replication_engine_entry.CopyFrom(pre_entry)
         if dry_run:
-            print "P4Runtime Write:", request
+            print("P4Runtime Write:", request)
         else:
             self.client_stub.Write(request)
 
-class GrpcRequestLogger(grpc.UnaryUnaryClientInterceptor, grpc.UnaryStreamClientInterceptor):
+
+class GrpcRequestLogger(
+    grpc.UnaryUnaryClientInterceptor, grpc.UnaryStreamClientInterceptor
+):
     """Implementation of a gRPC interceptor that logs request to a file"""
 
     def __init__(self, log_file):
         self.log_file = log_file
-        with open(self.log_file, 'w') as f:
+        with open(self.log_file, "w") as f:
             # Clear content if it exists.
             f.write("")
 
     def log_message(self, method_name, body):
-        with open(self.log_file, 'a') as f:
-            ts = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        with open(self.log_file, "a") as f:
+            ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
             msg = str(body)
             f.write("\n[%s] %s\n---\n" % (ts, method_name))
             if len(msg) < MSG_LOG_MAX_LEN:
                 f.write(str(body))
             else:
                 f.write("Message too long (%d bytes)! Skipping log...\n" % len(msg))
-            f.write('---\n')
+            f.write("---\n")
 
     def intercept_unary_unary(self, continuation, client_call_details, request):
         self.log_message(client_call_details.method, request)
@@ -218,6 +229,7 @@ class GrpcRequestLogger(grpc.UnaryUnaryClientInterceptor, grpc.UnaryStreamClient
     def intercept_unary_stream(self, continuation, client_call_details, request):
         self.log_message(client_call_details.method, request)
         return continuation(client_call_details, request)
+
 
 class IterableQueue(Queue):
     _sentinel = object()

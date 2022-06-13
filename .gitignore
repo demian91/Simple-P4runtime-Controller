@@ -3,6 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+
+# logs
+**log.txt
+
+# p4info files and compiled p4 files (json)
+**p4info.txt
+**p4i
+**json
+
 # C extensions
 *.so
 
